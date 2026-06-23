@@ -654,5 +654,4 @@ class SettingsManager {
     }
 }
 
-// Initialize settings manager
-const settingsManager = new SettingsManager();
+// SettingsManager class will be initialized in index.html

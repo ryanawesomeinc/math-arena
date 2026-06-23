@@ -411,5 +411,4 @@ class RPGManager {
     }
 }
 
-// Initialize RPG manager
-const rpgManager = new RPGManager();
+// RPGManager class will be initialized in index.html

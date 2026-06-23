@@ -159,5 +159,4 @@ class AnalyticsManager {
     }
 }
 
-// Initialize analytics manager
-const analyticsManager = new AnalyticsManager();
+// AnalyticsManager class will be initialized in index.html

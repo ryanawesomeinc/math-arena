@@ -578,6 +578,16 @@
     <script src="analytics.js"></script>
     <script src="rpg.js"></script>
     <script src="peer.js"></script>
-    <script src="game.js"></script>
+    <script>
+        // Initialize all managers after all scripts load
+        document.addEventListener('DOMContentLoaded', () => {
+            window.settingsManager = new SettingsManager();
+            window.analyticsManager = new AnalyticsManager();
+            window.rpgManager = new RPGManager();
+            window.peerManager = new PeerManager();
+            window.game = new MathArena();
+            console.log('All managers initialized');
+        });
+    </script>
 </body>
 </html>
