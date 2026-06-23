@@ -4,9 +4,30 @@ class AnalyticsManager {
     constructor() {
         this.events = [];
         this.sessionId = this.generateSessionId();
-        this.enabled = settingsManager ? settingsManager.get('analyticsEnabled') : false;
+        // Will be updated after settingsManager is available
+        this.enabled = this.loadEnabledFromStorage();
 
         this.loadEvents();
+    }
+
+    loadEnabledFromStorage() {
+        try {
+            const settings = localStorage.getItem('mathArena_settings');
+            if (settings) {
+                const parsed = JSON.parse(settings);
+                return parsed.analyticsEnabled || false;
+            }
+        } catch (e) {
+            console.error('Error loading analytics setting:', e);
+        }
+        return false;
+    }
+
+    // Call this after settingsManager is initialized
+    updateEnabledFromSettings() {
+        if (window.settingsManager) {
+            this.enabled = window.settingsManager.get('analyticsEnabled');
+        }
     }
 
     generateSessionId() {

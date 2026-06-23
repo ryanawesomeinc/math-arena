@@ -582,16 +582,20 @@
     <script>
         // Initialize all managers after all scripts load in dependency order
         document.addEventListener('DOMContentLoaded', () => {
-            // analyticsManager has no dependencies
+            // Create managers with no constructor dependencies first
             window.analyticsManager = new AnalyticsManager();
-            // rpgManager has no dependencies
             window.rpgManager = new RPGManager();
-            // settingsManager depends on rpgManager and analyticsManager
-            window.settingsManager = new SettingsManager();
-            // peerManager has no dependencies
             window.peerManager = new PeerManager();
-            // game depends on all above
+
+            // Now create settingsManager (depends on rpgManager, analyticsManager)
+            window.settingsManager = new SettingsManager();
+
+            // Wire up analyticsManager to use settingsManager
+            window.analyticsManager.updateEnabledFromSettings();
+
+            // Finally create game (depends on all above)
             window.game = new MathArena();
+
             console.log('All managers initialized');
         });
     </script>
