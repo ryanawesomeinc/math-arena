@@ -90,6 +90,11 @@ class SettingsManager {
         if (soundToggle) {
             this.updateSoundIcon();
             soundToggle.addEventListener('click', () => this.toggleSound());
+
+            // Initialize audioManager sound state from settings
+            if (typeof audioManager !== 'undefined') {
+                audioManager.soundEnabled = this.settings.soundEnabled;
+            }
         }
 
         // Avatar selection
@@ -120,10 +125,20 @@ class SettingsManager {
         this.saveToStorage();
         this.updateSoundIcon();
 
+        // Update audioManager state
+        if (typeof audioManager !== 'undefined') {
+            audioManager.soundEnabled = this.settings.soundEnabled;
+        }
+
         // Dispatch custom event for game to listen
         window.dispatchEvent(new CustomEvent('soundToggled', {
             detail: { enabled: this.settings.soundEnabled }
         }));
+
+        // Play confirmation sound if enabling
+        if (this.settings.soundEnabled && typeof audioManager !== 'undefined') {
+            audioManager.playSound('buttonClick');
+        }
     }
 
     setupAvatarSelection() {

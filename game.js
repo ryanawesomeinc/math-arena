@@ -3,70 +3,14 @@
 const ROUND_TIME = 10;
 const NEXT_QUESTION_DELAY = 1000;
 
-// Audio Context for sound effects
-let audioContext = null;
+// Use new audio system
+let audioManager = null;
 let soundEnabled = true;
 
-function initAudio() {
-    if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    return audioContext;
-}
-
+// Legacy function for compatibility - delegates to audioManager
 function playSound(type) {
-    // Check if sound is enabled
-    if (!soundEnabled) return;
-
-    try {
-        const ctx = initAudio();
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
-
-        if (type === 'correct') {
-            // High pitch ping (happy!)
-            oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5
-            oscillator.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1); // Up to A6
-            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-            oscillator.start(ctx.currentTime);
-            oscillator.stop(ctx.currentTime + 0.2);
-        } else if (type === 'wrong') {
-            // Low buzz
-            oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(150, ctx.currentTime);
-            oscillator.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.3);
-            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-            oscillator.start(ctx.currentTime);
-            oscillator.stop(ctx.currentTime + 0.3);
-        } else if (type === 'streak') {
-            // Streak sound - ascending arpeggio
-            [523, 659, 784, 1047].forEach((freq, i) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.05);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.05);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.05 + 0.15);
-                osc.start(ctx.currentTime + i * 0.05);
-                osc.stop(ctx.currentTime + i * 0.05 + 0.15);
-            });
-        } else if (type === 'timeout') {
-            // Sad descending tone
-            oscillator.frequency.setValueAtTime(400, ctx.currentTime);
-            oscillator.frequency.linearRampToValueAtTime(200, ctx.currentTime + 0.4);
-            gainNode.gain.setValueAtTime(0.25, ctx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-            oscillator.start(ctx.currentTime);
-            oscillator.stop(ctx.currentTime + 0.4);
-        }
-    } catch (e) {
-        // Audio not supported or allowed
+    if (audioManager) {
+        audioManager.playSound(type);
     }
 }
 
@@ -753,7 +697,7 @@ class MathArena {
         overlay.classList.remove('hidden');
 
         // Play sound
-        playSound('streak');
+        playSound('levelUp');
 
         // Hide after 2.5 seconds
         setTimeout(() => {
@@ -772,7 +716,7 @@ class MathArena {
         notification.classList.remove('hidden');
 
         // Play sound
-        playSound('streak');
+        playSound('achievement');
 
         // Hide after 3 seconds
         setTimeout(() => {
@@ -1426,7 +1370,9 @@ class MathArena {
             this.correctStreak++;
             this.currentMatchCorrect++;
             this.currentMatchQuestions++;
-            this.elements.game.yourScore.textContent = this.myScore;
+
+            // Animate score counter
+            this.animateScoreCounter(this.elements.game.yourScore, this.myScore);
 
             this.elements.game.speedIndicator.textContent = `${answerTime}s`;
             this.elements.game.speedIndicator.classList.remove('hidden');
@@ -1444,6 +1390,13 @@ class MathArena {
 
             // Streak bonus
             xpGained += Math.min(10, this.correctStreak * 2);
+
+            // Show floating XP at the position of the correct button
+            const correctBtn = this.elements.game.answersGrid.children[this.currentProblem.correctIndex];
+            if (correctBtn) {
+                const rect = correctBtn.getBoundingClientRect();
+                this.showFloatingXP(xpGained, rect.left + rect.width / 2, rect.top);
+            }
 
             // Map operation for RPG tracking
             const operationMap = { '+': 'add', '-': 'sub', '×': 'mult', '÷': 'div' };
@@ -1812,6 +1765,180 @@ class MathArena {
                 }
                 break;
         }
+    }
+
+    /**
+     * Show a floating XP notification at the specified position
+     */
+    showFloatingXP(xp, x, y) {
+        const floatingXP = document.createElement('div');
+        floatingXP.className = 'floating-xp';
+        floatingXP.textContent = `+${xp} XP`;
+        floatingXP.style.left = `${x}px`;
+        floatingXP.style.top = `${y}px`;
+        document.body.appendChild(floatingXP);
+
+        setTimeout(() => {
+            floatingXP.remove();
+        }, 1000);
+    }
+
+    /**
+     * Animate a score counter smoothly from current value to new value
+     */
+    animateScoreCounter(element, targetValue, duration = 500) {
+        const startValue = parseInt(element.textContent) || 0;
+        const diff = targetValue - startValue;
+        const startTime = performance.now();
+
+        element.classList.add('counting');
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const currentValue = Math.round(startValue + diff * easeOutQuart);
+
+            element.textContent = currentValue;
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                element.classList.remove('counting');
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }
+
+    /**
+     * Show a toast notification
+     */
+    showToast(message, duration = 3000) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        toast.setAttribute('role', 'status');
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, duration);
+    }
+
+    /**
+     * Setup enhanced button click animations
+     */
+    setupButtonAnimations() {
+        // Add click sound and animation to all buttons
+        const allButtons = document.querySelectorAll('button, .answer-btn');
+
+        allButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Play subtle click sound
+                if (audioManager) {
+                    audioManager.playSound('buttonClick');
+                }
+
+                // Visual feedback already handled by CSS :active state
+            }, { passive: true });
+        });
+    }
+
+    /**
+     * Announce game state to screen readers
+     */
+    announceToScreenReader(message) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.setAttribute('aria-atomic', 'true');
+        announcement.className = 'sr-only';
+        announcement.textContent = message;
+
+        document.body.appendChild(announcement);
+
+        setTimeout(() => {
+            announcement.remove();
+        }, 1000);
+    }
+
+    /**
+     * Setup modal open/close animations
+     */
+    setupModalAnimations() {
+        const modals = document.querySelectorAll('.modal');
+
+        modals.forEach(modal => {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.attributeName === 'class') {
+                        const isHidden = modal.classList.contains('hidden');
+
+                        if (!isHidden && audioManager) {
+                            // Modal opened
+                            audioManager.playSound('modalOpen');
+                        } else if (isHidden && audioManager) {
+                            // Modal closed
+                            audioManager.playSound('modalClose');
+                        }
+                    }
+                });
+            });
+
+            observer.observe(modal, { attributes: true });
+        });
+    }
+
+    /**
+     * Setup loading states for async operations
+     */
+    setupLoadingStates() {
+        // Add loading state support to buttons
+        const setupButtonLoading = (btn) => {
+            const originalText = btn.textContent;
+            const originalDisabled = btn.disabled;
+
+            btn.setLoading = (loading) => {
+                if (loading) {
+                    btn.disabled = true;
+                    btn.dataset.originalText = originalText;
+                    btn.innerHTML = '<span class="loading-spinner"></span>';
+                } else {
+                    btn.disabled = originalDisabled;
+                    btn.textContent = originalText;
+                }
+            };
+        };
+
+        document.querySelectorAll('button').forEach(setupButtonLoading);
+    }
+
+    /**
+     * Enhance answer button animations
+     */
+    enhanceAnswerButtonAnimations() {
+        const answerBtns = this.elements.game.answersGrid?.querySelectorAll('.answer-btn');
+
+        answerBtns?.forEach(btn => {
+            // Add press animation
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.95)';
+            });
+
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = 'scale(1)';
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
     }
 }
 

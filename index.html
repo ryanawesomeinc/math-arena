@@ -11,6 +11,50 @@
     <meta name="apple-mobile-web-app-title" content="Math Arena">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script>
+        // Register Service Worker for PWA support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.log('SW registration failed:', error);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show custom install button if it exists
+            const installBtn = document.getElementById('install-app-btn');
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', () => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('User accepted the install prompt');
+                        }
+                        deferredPrompt = null;
+                    });
+                });
+            }
+        });
+
+        // Hide install button if app is already installed
+        window.addEventListener('appinstalled', () => {
+            const installBtn = document.getElementById('install-app-btn');
+            if (installBtn) {
+                installBtn.style.display = 'none';
+            }
+        });
+    </script>
 </head>
 <body>
     <!-- Sound Toggle Button (fixed position) -->
@@ -288,6 +332,11 @@
                 <button id="campaign-play-btn" class="campaign-btn">🗺️ Play Campaign</button>
             </div>
 
+            <!-- PWA Install Button (hidden by default, shown when app can be installed) -->
+            <div class="connection-mode" style="display: none;" id="install-section">
+                <button id="install-app-btn" class="install-btn">📱 Install App</button>
+            </div>
+
             <div class="connection-mode">
                 <button id="create-btn" class="primary-btn">Create Game</button>
                 <button id="join-btn" class="secondary-btn">Join Game</button>
@@ -377,11 +426,11 @@
             <div id="speed-indicator" class="speed-indicator hidden"></div>
 
             <div class="problem-display">
-                <div id="problem-text" class="problem-text">Loading...</div>
-                <div id="round-result" class="round-result hidden"></div>
+                <div id="problem-text" class="problem-text" aria-live="polite" aria-atomic="true">Loading...</div>
+                <div id="round-result" class="round-result hidden" role="status" aria-live="polite"></div>
             </div>
 
-            <div class="answers-grid" id="answers-grid">
+            <div class="answers-grid" id="answers-grid" role="group" aria-label="Answer choices">
                 <!-- Answer buttons will be generated here -->
             </div>
 
@@ -936,17 +985,35 @@
     </div>
 
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="settings.js?v=4"></script>
-    <script src="analytics.js?v=4"></script>
-    <script src="rpg.js?v=4"></script>
-    <script src="rpg2.js?v=4"></script>
-    <script src="rpg3.js?v=4"></script>
-    <script src="peer.js?v=4"></script>
-    <script src="game.js?v=4"></script>
-    <script src="rpg3-ui.js?v=4"></script>
+    <script src="audio-system.js?v=5"></script>
+    <script src="settings.js?v=5"></script>
+    <script src="analytics.js?v=5"></script>
+    <script src="rpg.js?v=5"></script>
+    <script src="rpg2.js?v=5"></script>
+    <script src="rpg3.js?v=5"></script>
+    <script src="peer.js?v=5"></script>
+    <script src="game.js?v=5"></script>
+    <script src="rpg3-ui.js?v=5"></script>
+
+    <!-- Toast notification container -->
+    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
     <script>
         // Initialize all managers after all scripts load in dependency order
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize audio system first
+            if (typeof audioManager !== 'undefined') {
+                window.audioManager = audioManager;
+
+                // Initialize audio on first user interaction
+                const initAudioOnInteraction = () => {
+                    audioManager.init();
+                    document.removeEventListener('click', initAudioOnInteraction);
+                    document.removeEventListener('keydown', initAudioOnInteraction);
+                };
+                document.addEventListener('click', initAudioOnInteraction, { once: true });
+                document.addEventListener('keydown', initAudioOnInteraction, { once: true });
+            }
+
             // Create managers with no constructor dependencies first
             window.analyticsManager = new AnalyticsManager();
             window.rpgManager = new RPGManager();
@@ -972,6 +1039,14 @@
 
             // Finally create game (depends on all above)
             window.game = new MathArena();
+
+            // Setup enhanced UI features after game is initialized
+            if (window.game) {
+                // Setup button animations
+                window.game.setupButtonAnimations();
+                window.game.setupModalAnimations();
+                window.game.setupLoadingStates();
+            }
 
             console.log('All managers initialized');
         });
