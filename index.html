@@ -224,6 +224,8 @@
         <div id="connection-screen" class="screen">
             <div class="connection-header">
                 <button id="stats-btn" class="icon-btn" aria-label="Stats">📊</button>
+                <button id="quests-btn" class="icon-btn" aria-label="Daily Quests">📜</button>
+                <button id="inventory-btn" class="icon-btn" aria-label="Items">🎒</button>
                 <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙️</button>
                 <button id="instructions-btn" class="icon-btn" aria-label="How to Play">❓</button>
             </div>
@@ -234,6 +236,16 @@
             <!-- Avatar Selection -->
             <div class="avatar-selection">
                 <h3>Choose Your Avatar <span class="level-badge" id="level-badge">Level 1</span></h3>
+
+                <!-- Player Name Input -->
+                <div class="player-name-section">
+                    <label for="player-name-input">Your Name (3-12 characters)</label>
+                    <div class="name-input-group">
+                        <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="12">
+                        <button id="save-player-name" class="save-name-btn">Save</button>
+                    </div>
+                </div>
+
                 <div class="xp-bar-container">
                     <div class="xp-bar" id="xp-bar">
                         <div class="xp-fill" id="xp-fill"></div>
@@ -318,6 +330,8 @@
                     <span class="player-avatar" id="your-avatar">🦊</span>
                     <div class="player-info">
                         <span class="player-label">You</span>
+                        <span class="player-name-display" id="your-name">Player</span>
+                        <span class="player-title" id="your-title">Math Apprentice</span>
                         <span class="player-level" id="your-level">Lv.1</span>
                         <span class="score" id="your-score">0</span>
                     </div>
@@ -332,6 +346,13 @@
                         <span class="score" id="opponent-score">0</span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Equipped Item Display -->
+            <div id="equipped-item-display" class="equipped-item-display hidden">
+                <span class="item-icon" id="equipped-item-icon">🎒</span>
+                <span class="item-name" id="equipped-item-name">No Item</span>
+                <span class="item-uses" id="equipped-item-uses"></span>
             </div>
 
             <div id="progress-indicator" class="progress-indicator hidden">Question 1 of 20</div>
@@ -551,6 +572,125 @@
         </div>
     </div>
 
+    <!-- Quests Modal -->
+    <div id="quests-modal" class="modal hidden">
+        <div class="modal-content quests-modal-content">
+            <div class="modal-header">
+                <h2>Daily Quests</h2>
+                <button id="close-quests" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body quests-modal-body">
+                <div class="quests-header">
+                    <div class="quests-reset">
+                        <span class="reset-icon">🔄</span>
+                        <span class="reset-text">Resets in <span id="quest-reset-timer">--h --m</span></span>
+                    </div>
+                    <div class="quests-progress">
+                        <span id="quests-completed">0/3</span> Completed
+                    </div>
+                </div>
+
+                <div class="quests-list" id="quests-list">
+                    <!-- Quests will be populated by JavaScript -->
+                </div>
+
+                <div class="quests-footer">
+                    <button id="claim-quests-btn" class="primary-btn" disabled>Claim All Rewards</button>
+                    <div class="total-reward">
+                        Total XP: <span id="total-quest-xp">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Titles Modal -->
+    <div id="titles-modal" class="modal hidden">
+        <div class="modal-content titles-modal-content">
+            <div class="modal-header">
+                <h2>Your Titles</h2>
+                <button id="close-titles" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body titles-modal-body">
+                <div class="current-title-section">
+                    <h3>Current Title</h3>
+                    <div class="current-title-display">
+                        <span class="title-icon" id="current-title-icon">📚</span>
+                        <span class="title-name" id="current-title-name">Math Apprentice</span>
+                    </div>
+                </div>
+
+                <div class="unlocked-titles-section">
+                    <h3>Unlocked Titles</h3>
+                    <div class="titles-grid" id="titles-grid">
+                        <!-- Titles will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="locked-titles-section">
+                    <h3>Locked Titles</h3>
+                    <div class="titles-grid" id="locked-titles-grid">
+                        <!-- Locked titles will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div id="inventory-modal" class="modal hidden">
+        <div class="modal-content inventory-modal-content">
+            <div class="modal-header">
+                <h2>Items</h2>
+                <button id="close-inventory" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body inventory-modal-body">
+                <div class="equipped-item-section">
+                    <h3>Equipped Item</h3>
+                    <div class="equipped-item-display-modal" id="equipped-item-modal">
+                        <div class="no-equipped-item">No item equipped</div>
+                    </div>
+                </div>
+
+                <div class="inventory-section">
+                    <h3>Your Inventory</h3>
+                    <div class="inventory-grid" id="inventory-grid">
+                        <!-- Inventory items will be populated by JavaScript -->
+                    </div>
+                    <div class="inventory-empty hidden" id="inventory-empty">
+                        No items yet. Complete quests and achievements to earn items!
+                    </div>
+                </div>
+
+                <div class="items-info">
+                    <h3>About Items</h3>
+                    <div class="items-legend">
+                        <div class="item-legend-item">
+                            <span class="legend-icon">⏸️</span>
+                            <span class="legend-name">Time Freeze</span>
+                            <span class="legend-desc">Stop timer for 3s</span>
+                        </div>
+                        <div class="item-legend-item">
+                            <span class="legend-icon">✏️</span>
+                            <span class="legend-name">Lucky Pencil</span>
+                            <span class="legend-desc">Easier problems</span>
+                        </div>
+                        <div class="item-legend-item">
+                            <span class="legend-icon">🛡️</span>
+                            <span class="legend-name">Shield</span>
+                            <span class="legend-desc">Block one wrong answer</span>
+                        </div>
+                        <div class="item-legend-item">
+                            <span class="legend-icon">🧮</span>
+                            <span class="legend-name">Time Extension</span>
+                            <span class="legend-desc">+5 seconds once</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Analytics Opt-In Modal -->
     <div id="analytics-optin-modal" class="modal hidden">
         <div class="modal-content modal-small">
@@ -574,17 +714,24 @@
     </div>
 
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="settings.js?v=3"></script>
-    <script src="analytics.js?v=3"></script>
-    <script src="rpg.js?v=3"></script>
-    <script src="peer.js?v=3"></script>
-    <script src="game.js?v=3"></script>
+    <script src="settings.js?v=4"></script>
+    <script src="analytics.js?v=4"></script>
+    <script src="rpg.js?v=4"></script>
+    <script src="rpg2.js?v=4"></script>
+    <script src="peer.js?v=4"></script>
+    <script src="game.js?v=4"></script>
     <script>
         // Initialize all managers after all scripts load in dependency order
         document.addEventListener('DOMContentLoaded', () => {
             // Create managers with no constructor dependencies first
             window.analyticsManager = new AnalyticsManager();
             window.rpgManager = new RPGManager();
+
+            // Create Phase 2 RPG managers (depend on rpgManager)
+            window.titlesManager = new TitlesManager(rpgManager);
+            window.questsManager = new QuestsManager(rpgManager);
+            window.itemsManager = new ItemsManager(rpgManager);
+
             window.peerManager = new PeerManager();
 
             // Now create settingsManager (depends on rpgManager, analyticsManager)

@@ -5,6 +5,8 @@ class SettingsManager {
         this.settings = {
             soundEnabled: true,
             selectedAvatar: '🦊',
+            playerName: 'Player',
+            equippedTitle: null,
             lastRoomCode: '',
             questionsPerMatch: 20,
             startingDifficulty: 2,
@@ -127,8 +129,49 @@ class SettingsManager {
     setupAvatarSelection() {
         const avatarGrid = document.getElementById('avatar-grid');
         const selectedAvatarInput = document.getElementById('selected-avatar');
+        const playerNameInput = document.getElementById('player-name-input');
+        const saveNameBtn = document.getElementById('save-player-name');
 
         if (!avatarGrid) return;
+
+        // Setup player name input
+        if (playerNameInput && saveNameBtn) {
+            playerNameInput.value = this.settings.playerName || 'Player';
+
+            saveNameBtn.addEventListener('click', () => {
+                const result = this.setPlayerName(playerNameInput.value);
+                if (result.success) {
+                    // Show success feedback
+                    saveNameBtn.textContent = 'Saved!';
+                    saveNameBtn.classList.add('success');
+                    setTimeout(() => {
+                        saveNameBtn.textContent = 'Save';
+                        saveNameBtn.classList.remove('success');
+                    }, 1500);
+
+                    // Update player name display
+                    this.updatePlayerNameDisplays();
+                } else {
+                    // Show error
+                    playerNameInput.classList.add('error');
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'name-error';
+                    errorMsg.textContent = result.error;
+                    playerNameInput.parentNode.appendChild(errorMsg);
+                    setTimeout(() => {
+                        playerNameInput.classList.remove('error');
+                        errorMsg.remove();
+                    }, 2000);
+                }
+            });
+
+            // Allow Enter key to save
+            playerNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveNameBtn.click();
+                }
+            });
+        }
 
         // Update avatar grid based on RPG unlocks
         this.updateAvatarGrid();
@@ -181,6 +224,14 @@ class SettingsManager {
             if (analyticsManager) {
                 analyticsManager.trackAvatarChanged(newAvatar);
             }
+        });
+    }
+
+    updatePlayerNameDisplays() {
+        const name = this.getPlayerName();
+        // Update all player name displays
+        document.querySelectorAll('.player-name-display').forEach(el => {
+            el.textContent = name;
         });
     }
 
@@ -651,6 +702,30 @@ class SettingsManager {
     setLastRoomCode(code) {
         this.settings.lastRoomCode = code;
         this.saveToStorage();
+    }
+
+    setPlayerName(name) {
+        // Validate name: 3-12 characters, alphanumeric + spaces
+        const sanitizedName = name.trim().slice(0, 12);
+        if (sanitizedName.length >= 3 && /^[A-Za-z0-9\s]+$/.test(sanitizedName)) {
+            this.settings.playerName = sanitizedName;
+            this.saveToStorage();
+            return { success: true, name: sanitizedName };
+        }
+        return { success: false, error: sanitizedName.length < 3 ? 'Name must be at least 3 characters' : 'Name can only contain letters and numbers' };
+    }
+
+    getPlayerName() {
+        return this.settings.playerName || 'Player';
+    }
+
+    setEquippedTitle(titleId) {
+        this.settings.equippedTitle = titleId;
+        this.saveToStorage();
+    }
+
+    getEquippedTitle() {
+        return this.settings.equippedTitle;
     }
 }
 

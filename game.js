@@ -195,8 +195,22 @@ class MathArena {
             });
         }
 
+        // Setup quests modal
+        this.setupQuestsModal();
+
+        // Setup titles modal
+        this.setupTitlesModal();
+
+        // Setup inventory modal
+        this.setupInventoryModal();
+
         // Update initial RPG UI
         this.updateRPGUI();
+
+        // Update player name displays
+        if (settingsManager) {
+            this.updatePlayerNameDisplay();
+        }
     }
 
     updateRPGUI() {
@@ -242,6 +256,393 @@ class MathArena {
                 }
             }
         });
+    }
+
+    setupQuestsModal() {
+        const questsBtn = document.getElementById('quests-btn');
+        const closeQuestsBtn = document.getElementById('close-quests');
+        const questsModal = document.getElementById('quests-modal');
+        const claimBtn = document.getElementById('claim-quests-btn');
+
+        if (questsBtn && questsModal) {
+            questsBtn.addEventListener('click', () => {
+                this.updateQuestsDisplay();
+                questsModal.classList.remove('hidden');
+            });
+        }
+
+        if (closeQuestsBtn && questsModal) {
+            closeQuestsBtn.addEventListener('click', () => {
+                questsModal.classList.add('hidden');
+            });
+
+            questsModal.addEventListener('click', (e) => {
+                if (e.target === questsModal) {
+                    questsModal.classList.add('hidden');
+                }
+            });
+        }
+
+        if (claimBtn) {
+            claimBtn.addEventListener('click', () => {
+                if (questsManager) {
+                    const xpGained = questsManager.claimRewards();
+                    if (xpGained > 0 && rpgManager) {
+                        rpgManager.addXP(xpGained);
+                        this.showXPGained(xpGained);
+
+                        // Random chance to give an item as bonus reward
+                        if (itemsManager && Math.random() < 0.3) {
+                            const item = itemsManager.giveItemAsReward('common');
+                            this.showItemRewardNotification(item);
+                        }
+                    }
+                    this.updateQuestsDisplay();
+                    questsBtn.classList.remove('has-rewards');
+                }
+            });
+        }
+
+        // Listen for quest updates
+        window.addEventListener('questUpdate', () => {
+            this.updateQuestsButton();
+            this.updateQuestsDisplay();
+        });
+
+        // Start quest reset timer update
+        this.startQuestTimerUpdate();
+    }
+
+    setupTitlesModal() {
+        const titlesBtn = document.getElementById('titles-btn');
+        const closeTitlesBtn = document.getElementById('close-titles');
+        const titlesModal = document.getElementById('titles-modal');
+
+        if (titlesModal) {
+            // Open titles from stats modal (we'll add a button later)
+            if (closeTitlesBtn) {
+                closeTitlesBtn.addEventListener('click', () => {
+                    titlesModal.classList.add('hidden');
+                });
+
+                titlesModal.addEventListener('click', (e) => {
+                    if (e.target === titlesModal) {
+                        titlesModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            this.updateTitlesDisplay();
+        }
+    }
+
+    setupInventoryModal() {
+        const inventoryBtn = document.getElementById('inventory-btn');
+        const closeInventoryBtn = document.getElementById('close-inventory');
+        const inventoryModal = document.getElementById('inventory-modal');
+
+        if (inventoryBtn && inventoryModal) {
+            inventoryBtn.addEventListener('click', () => {
+                this.updateInventoryDisplay();
+                inventoryModal.classList.remove('hidden');
+            });
+        }
+
+        if (closeInventoryBtn && inventoryModal) {
+            closeInventoryBtn.addEventListener('click', () => {
+                inventoryModal.classList.add('hidden');
+            });
+
+            inventoryModal.addEventListener('click', (e) => {
+                if (e.target === inventoryModal) {
+                    inventoryModal.classList.add('hidden');
+                }
+            });
+        }
+
+        // Listen for inventory updates
+        window.addEventListener('inventoryUpdate', () => {
+            this.updateInventoryButton();
+            this.updateInventoryDisplay();
+        });
+
+        this.updateInventoryDisplay();
+    }
+
+    updatePlayerNameDisplay() {
+        if (!settingsManager) return;
+
+        const name = settingsManager.getPlayerName();
+        const nameDisplay = document.getElementById('your-name');
+        if (nameDisplay) {
+            nameDisplay.textContent = name;
+        }
+
+        // Update current title
+        if (titlesManager && rpgManager) {
+            const level = rpgManager.rpgData.level;
+            const currentTitle = titlesManager.getCurrentTitle(level);
+            const titleDisplay = document.getElementById('your-title');
+            if (titleDisplay) {
+                titleDisplay.textContent = currentTitle.name;
+            }
+        }
+    }
+
+    updateQuestsDisplay() {
+        if (!questsManager) return;
+
+        const questsList = document.getElementById('quests-list');
+        const completedCount = document.getElementById('quests-completed');
+        const claimBtn = document.getElementById('claim-quests-btn');
+        const totalXP = document.getElementById('total-quest-xp');
+
+        if (!questsList) return;
+
+        const quests = questsManager.dailyQuests;
+        let totalReward = 0;
+
+        questsList.innerHTML = quests.map(quest => {
+            const progress = Math.min(quest.current, quest.target);
+            const progressPercent = (progress / quest.target) * 100;
+            const isCompleted = quest.completed && !quest.claimed;
+
+            if (isCompleted) {
+                totalReward += quest.reward;
+            }
+
+            return `
+                <div class="quest-card ${quest.completed ? 'completed' : ''} ${quest.claimed ? 'claimed' : ''}">
+                    <div class="quest-header">
+                        <span class="quest-title">${quest.title}</span>
+                        <span class="quest-check">${quest.completed ? '✓' : ''}</span>
+                    </div>
+                    <div class="quest-description">${quest.description}</div>
+                    <div class="quest-progress">
+                        <div class="quest-progress-bar">
+                            <div class="quest-progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <span class="quest-progress-text">${progress}/${quest.target}</span>
+                    </div>
+                    <div class="quest-reward">
+                        <span>🎁</span>
+                        <span>+${quest.reward} XP</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (completedCount) {
+            completedCount.textContent = `${questsManager.getCompletedCount()}/3`;
+        }
+
+        if (totalXP) {
+            totalXP.textContent = totalReward;
+        }
+
+        if (claimBtn) {
+            claimBtn.disabled = totalReward === 0 || questsManager.getAllClaimed();
+        }
+    }
+
+    updateQuestsButton() {
+        if (!questsManager) return;
+
+        const questsBtn = document.getElementById('quests-btn');
+        if (!questsBtn) return;
+
+        const hasUnclaimedRewards = questsManager.dailyQuests.some(q => q.completed && !q.claimed);
+        if (hasUnclaimedRewards) {
+            questsBtn.classList.add('has-rewards');
+        } else {
+            questsBtn.classList.remove('has-rewards');
+        }
+    }
+
+    startQuestTimerUpdate() {
+        // Update quest reset timer every minute
+        setInterval(() => {
+            if (questsManager) {
+                const timerEl = document.getElementById('quest-reset-timer');
+                if (timerEl) {
+                    timerEl.textContent = questsManager.getResetTimeString();
+                }
+            }
+        }, 60000);
+
+        // Initial update
+        if (questsManager) {
+            const timerEl = document.getElementById('quest-reset-timer');
+            if (timerEl) {
+                timerEl.textContent = questsManager.getResetTimeString();
+            }
+        }
+    }
+
+    updateTitlesDisplay() {
+        if (!titlesManager) return;
+
+        const currentTitleIcon = document.getElementById('current-title-icon');
+        const currentTitleName = document.getElementById('current-title-name');
+        const titlesGrid = document.getElementById('titles-grid');
+        const lockedTitlesGrid = document.getElementById('locked-titles-grid');
+
+        const level = rpgManager ? rpgManager.rpgData.level : 1;
+        const currentTitle = titlesManager.getCurrentTitle(level);
+        const unlockedTitles = titlesManager.getUnlockedTitles();
+        const allTitles = Object.values(titlesManager.titles);
+        const lockedTitles = allTitles.filter(t => !unlockedTitles.includes(t));
+
+        if (currentTitleIcon) currentTitleIcon.textContent = currentTitle.icon;
+        if (currentTitleName) currentTitleName.textContent = currentTitle.name;
+
+        if (titlesGrid) {
+            const equippedTitle = settingsManager ? settingsManager.getEquippedTitle() : null;
+
+            titlesGrid.innerHTML = unlockedTitles.map(title => `
+                <div class="title-card ${equippedTitle === title.id ? 'equipped' : ''}" data-title-id="${title.id}">
+                    <div class="title-card-icon">${title.icon}</div>
+                    <div class="title-card-name">${title.name}</div>
+                    <div class="title-card-desc">${title.description}</div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            titlesGrid.querySelectorAll('.title-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const titleId = card.dataset.titleId;
+                    if (settingsManager) {
+                        settingsManager.setEquippedTitle(titleId);
+                        this.updateTitlesDisplay();
+                        this.updatePlayerNameDisplay();
+                    }
+                });
+            });
+        }
+
+        if (lockedTitlesGrid) {
+            lockedTitlesGrid.innerHTML = lockedTitles.map(title => `
+                <div class="title-card locked">
+                    <div class="title-card-icon">${title.icon}</div>
+                    <div class="title-card-name">${title.name}</div>
+                    <div class="title-card-desc">${title.description}</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    updateInventoryDisplay() {
+        if (!itemsManager) return;
+
+        const inventoryGrid = document.getElementById('inventory-grid');
+        const equippedItemModal = document.getElementById('equipped-item-modal');
+        const inventoryEmpty = document.getElementById('inventory-empty');
+
+        const inventory = itemsManager.inventory;
+        const equippedItem = itemsManager.getEquippedItem();
+
+        // Update equipped item display
+        if (equippedItemModal) {
+            if (equippedItem) {
+                const quantity = itemsManager.getItemQuantity(itemsManager.equippedItem);
+                equippedItemModal.innerHTML = `
+                    <div class="equipped-item-info">
+                        <span class="item-icon">${equippedItem.icon}</span>
+                        <div>
+                            <div class="item-name">${equippedItem.name}</div>
+                            <div class="item-uses">${quantity} uses</div>
+                        </div>
+                    </div>
+                    <button class="unequip-item-btn" id="unequip-item-btn">Unequip</button>
+                `;
+
+                // Add unequip handler
+                document.getElementById('unequip-item-btn').addEventListener('click', () => {
+                    itemsManager.unequipItem();
+                    this.updateInventoryDisplay();
+                    this.updateEquippedItemInGame();
+                });
+            } else {
+                equippedItemModal.innerHTML = '<div class="no-equipped-item">No item equipped</div>';
+            }
+        }
+
+        // Update inventory grid
+        if (inventoryGrid) {
+            const items = Object.keys(inventory);
+
+            if (items.length === 0) {
+                inventoryGrid.classList.add('hidden');
+                if (inventoryEmpty) inventoryEmpty.classList.remove('hidden');
+            } else {
+                inventoryGrid.classList.remove('hidden');
+                if (inventoryEmpty) inventoryEmpty.classList.add('hidden');
+
+                inventoryGrid.innerHTML = items.map(itemId => {
+                    const item = itemsManager.itemDefinitions[itemId];
+                    const quantity = inventory[itemId];
+                    const isEquipped = itemsManager.equippedItem === itemId;
+
+                    return `
+                        <div class="inventory-item-card ${isEquipped ? 'equipped' : ''}" data-item-id="${itemId}">
+                            <span class="item-card-quantity">${quantity}</span>
+                            <div class="item-card-icon">${item.icon}</div>
+                            <div class="item-card-name">${item.name}</div>
+                            <span class="item-card-rarity ${item.rarity}">${item.rarity}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add click handlers
+                inventoryGrid.querySelectorAll('.inventory-item-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const itemId = card.dataset.itemId;
+                        if (itemsManager.equippedItem === itemId) {
+                            itemsManager.unequipItem();
+                        } else {
+                            itemsManager.equipItem(itemId);
+                        }
+                        this.updateInventoryDisplay();
+                        this.updateEquippedItemInGame();
+                    });
+                });
+            }
+        }
+    }
+
+    updateEquippedItemInGame() {
+        const equippedItemDisplay = document.getElementById('equipped-item-display');
+        const equippedItemIcon = document.getElementById('equipped-item-icon');
+        const equippedItemName = document.getElementById('equipped-item-name');
+        const equippedItemUses = document.getElementById('equipped-item-uses');
+
+        if (!itemsManager) return;
+
+        const equippedItem = itemsManager.getEquippedItem();
+
+        if (equippedItem && equippedItemDisplay) {
+            const quantity = itemsManager.getItemQuantity(itemsManager.equippedItem);
+            equippedItemDisplay.classList.remove('hidden');
+            if (equippedItemIcon) equippedItemIcon.textContent = equippedItem.icon;
+            if (equippedItemName) equippedItemName.textContent = equippedItem.name;
+            if (equippedItemUses) equippedItemUses.textContent = `(${quantity})`;
+        } else if (equippedItemDisplay) {
+            equippedItemDisplay.classList.add('hidden');
+        }
+    }
+
+    updateInventoryButton() {
+        if (!itemsManager) return;
+
+        const inventoryBtn = document.getElementById('inventory-btn');
+        if (!inventoryBtn) return;
+
+        const hasItems = Object.keys(itemsManager.inventory).length > 0;
+        if (hasItems) {
+            inventoryBtn.classList.add('has-rewards');
+        } else {
+            inventoryBtn.classList.remove('has-rewards');
+        }
     }
 
     updateStatsDisplay() {
@@ -376,6 +777,37 @@ class MathArena {
         // Hide after 3 seconds
         setTimeout(() => {
             notification.classList.add('hidden');
+        }, 3000);
+
+        // Random chance to give item for achievement unlock
+        if (itemsManager && Math.random() < 0.25) {
+            const item = itemsManager.giveItemAsReward('uncommon');
+            setTimeout(() => {
+                this.showItemRewardNotification(item);
+            }, 3500);
+        }
+    }
+
+    showItemRewardNotification(item) {
+        const notification = document.createElement('div');
+        notification.className = 'achievement-notification';
+        notification.style.top = '140px';
+        notification.innerHTML = `
+            <div class="achievement-content">
+                <div class="achievement-icon">${item.icon}</div>
+                <div class="achievement-info">
+                    <div class="achievement-title">Item Reward!</div>
+                    <div class="achievement-name">${item.name}</div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        playSound('streak');
+
+        setTimeout(() => {
+            notification.remove();
         }, 3000);
     }
 
@@ -1042,6 +1474,16 @@ class MathArena {
                 rpgManager.trackStreak(this.correctStreak);
             }
 
+            // Track quests
+            if (questsManager) {
+                questsManager.trackCorrectAnswer(rpgOperation);
+
+                // Track streak quests
+                if (this.correctStreak >= 3) {
+                    questsManager.trackStreak(this.correctStreak);
+                }
+            }
+
             // Track analytics
             if (analyticsManager) {
                 analyticsManager.trackQuestionAnswered({
@@ -1235,6 +1677,11 @@ class MathArena {
                         this.showLevelUp(levelResult.oldLevel, levelResult.newLevel);
                     }, 1500);
                 }
+
+                // Track win quest
+                if (questsManager) {
+                    questsManager.trackWin();
+                }
             }
 
             // Track match for achievements
@@ -1243,6 +1690,11 @@ class MathArena {
 
             // Check for newly unlocked achievements
             this.checkAchievementUnlocks();
+        }
+
+        // Track final streak for quests
+        if (questsManager && this.correctStreak >= 3) {
+            questsManager.trackStreak(this.correctStreak);
         }
 
         // Track analytics
