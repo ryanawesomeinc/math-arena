@@ -224,6 +224,10 @@
         <div id="connection-screen" class="screen">
             <div class="connection-header">
                 <button id="stats-btn" class="icon-btn" aria-label="Stats">📊</button>
+                <button id="campaign-btn" class="icon-btn" aria-label="Campaign">🗺️</button>
+                <button id="gear-btn" class="icon-btn" aria-label="Gear">⚔️</button>
+                <button id="skills-btn" class="icon-btn" aria-label="Skills">🌲</button>
+                <button id="clan-btn" class="icon-btn" aria-label="Clans">👥</button>
                 <button id="quests-btn" class="icon-btn" aria-label="Daily Quests">📜</button>
                 <button id="inventory-btn" class="icon-btn" aria-label="Items">🎒</button>
                 <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙️</button>
@@ -278,6 +282,10 @@
                     <button class="avatar-btn" data-avatar="🎨" aria-label="Palette" data-locked="true">🔒</button>
                 </div>
                 <input type="hidden" id="selected-avatar" value="🦊">
+            </div>
+
+            <div class="connection-mode">
+                <button id="campaign-play-btn" class="campaign-btn">🗺️ Play Campaign</button>
             </div>
 
             <div class="connection-mode">
@@ -713,13 +721,229 @@
         </div>
     </div>
 
+    <!-- Campaign Modal -->
+    <div id="campaign-modal" class="modal hidden">
+        <div class="modal-content campaign-modal-content">
+            <div class="modal-header">
+                <h2>Campaign Mode</h2>
+                <button id="close-campaign" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body campaign-modal-body">
+                <div class="campaign-overview">
+                    <div class="total-stars-display">
+                        <span class="stars-icon">⭐</span>
+                        <span class="stars-count" id="campaign-total-stars">0</span>
+                        <span class="stars-divider">/</span>
+                        <span class="stars-max">75</span>
+                        <span class="stars-label">Total Stars</span>
+                    </div>
+                </div>
+
+                <div class="worlds-list" id="worlds-list">
+                    <!-- Worlds will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Level Select Modal -->
+    <div id="level-select-modal" class="modal hidden">
+        <div class="modal-content level-select-modal-content">
+            <div class="modal-header">
+                <h2 id="level-select-world-name">Select Level</h2>
+                <button id="close-level-select" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body level-select-modal-body">
+                <div class="levels-grid" id="levels-grid">
+                    <!-- Levels will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gear Modal -->
+    <div id="gear-modal" class="modal hidden">
+        <div class="modal-content gear-modal-content">
+            <div class="modal-header">
+                <h2>Equipment</h2>
+                <button id="close-gear" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body gear-modal-body">
+                <!-- Equipment Slots -->
+                <div class="equipment-slots">
+                    <div class="equipment-slot" data-slot="head">
+                        <div class="slot-header">
+                            <span class="slot-icon">🧙</span>
+                            <span class="slot-name">Head</span>
+                        </div>
+                        <div class="slot-content" id="slot-head">
+                            <div class="empty-slot">Empty</div>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="body">
+                        <div class="slot-header">
+                            <span class="slot-icon">🦸</span>
+                            <span class="slot-name">Body</span>
+                        </div>
+                        <div class="slot-content" id="slot-body">
+                            <div class="empty-slot">Empty</div>
+                        </div>
+                    </div>
+                    <div class="equipment-slot" data-slot="accessory">
+                        <div class="slot-header">
+                            <span class="slot-icon">🧤</span>
+                            <span class="slot-name">Accessory</span>
+                        </div>
+                        <div class="slot-content" id="slot-accessory">
+                            <div class="empty-slot">Empty</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Stats -->
+                <div class="total-stats-display">
+                    <h3>Total Bonuses</h3>
+                    <div class="stats-list" id="gear-stats-list">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Gear Inventory -->
+                <div class="gear-inventory-section">
+                    <h3>Your Gear</h3>
+                    <div class="gear-grid" id="gear-grid">
+                        <!-- Gear items will be populated by JavaScript -->
+                    </div>
+                    <div class="gear-empty hidden" id="gear-empty">
+                        No gear yet. Complete campaign levels and achievements to earn gear!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Modal -->
+    <div id="skills-modal" class="modal hidden">
+        <div class="modal-content skills-modal-content">
+            <div class="modal-header">
+                <h2>Skill Trees</h2>
+                <button id="close-skills" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body skills-modal-body">
+                <div class="skills-header">
+                    <div class="skill-points-display">
+                        <span class="skill-points-icon">✨</span>
+                        <span class="skill-points-count" id="skill-points-count">0</span>
+                        <span class="skill-points-label">Skill Points</span>
+                    </div>
+                </div>
+
+                <div class="skill-trees-tabs" id="skill-trees-tabs">
+                    <!-- Skill tree tabs will be populated by JavaScript -->
+                </div>
+
+                <div class="skill-tree-content" id="skill-tree-content">
+                    <!-- Current skill tree will be displayed here -->
+                </div>
+
+                <div class="skills-footer">
+                    <button id="respec-skills-btn" class="secondary-btn">Respec All (1000 Gold)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clan Modal -->
+    <div id="clan-modal" class="modal hidden">
+        <div class="modal-content clan-modal-content">
+            <div class="modal-header">
+                <h2>Clans</h2>
+                <button id="close-clan" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body clan-modal-body">
+                <!-- Clan creation/join section -->
+                <div class="clan-action-section" id="clan-action-section">
+                    <h3>Join or Create a Clan</h3>
+                    <div class="clan-join-form">
+                        <input type="text" id="clan-code-input" placeholder="Enter 6-character clan code" maxlength="6">
+                        <button id="join-clan-btn" class="primary-btn">Join Clan</button>
+                    </div>
+                    <div class="clan-divider">or</div>
+                    <div class="clan-create-form">
+                        <input type="text" id="clan-name-input" placeholder="Clan Name" maxlength="20">
+                        <input type="text" id="clan-tag-input" placeholder="Clan Tag (3 chars)" maxlength="3">
+                        <button id="create-clan-btn" class="secondary-btn">Create Clan</button>
+                    </div>
+                </div>
+
+                <!-- Current clan display -->
+                <div class="current-clan-section hidden" id="current-clan-section">
+                    <div class="clan-info">
+                        <h3 id="clan-display-name">Clan Name</h3>
+                        <div class="clan-details">
+                            <span class="clan-tag" id="clan-display-tag">[TAG]</span>
+                            <span class="clan-level">Level <span id="clan-display-level">1</span></span>
+                        </div>
+                    </div>
+
+                    <div class="clan-members-section">
+                        <h4>Members</h4>
+                        <div class="clan-members-list" id="clan-members-list">
+                            <!-- Members will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="clan-perks-section">
+                        <h4>Clan Perks</h4>
+                        <div class="clan-perks-list" id="clan-perks-list">
+                            <!-- Perks will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="clan-actions">
+                        <button id="leave-clan-btn" class="back-btn">Leave Clan</button>
+                    </div>
+                </div>
+
+                <!-- Clan Leaderboard -->
+                <div class="clan-leaderboard-section">
+                    <h3>Top Clans</h3>
+                    <div class="clan-leaderboard-list" id="clan-leaderboard-list">
+                        <!-- Leaderboard will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clan Chat Modal -->
+    <div id="clan-chat-modal" class="modal hidden">
+        <div class="modal-content clan-chat-modal-content">
+            <div class="modal-header">
+                <h2>Clan Chat</h2>
+                <button id="close-clan-chat" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body clan-chat-modal-body">
+                <div class="clan-chat-messages" id="clan-chat-messages">
+                    <!-- Chat messages will be populated by JavaScript -->
+                </div>
+                <div class="clan-chat-input-section">
+                    <input type="text" id="clan-chat-input" placeholder="Type a message..." maxlength="100">
+                    <button id="clan-chat-send-btn" class="primary-btn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="settings.js?v=4"></script>
     <script src="analytics.js?v=4"></script>
     <script src="rpg.js?v=4"></script>
     <script src="rpg2.js?v=4"></script>
+    <script src="rpg3.js?v=4"></script>
     <script src="peer.js?v=4"></script>
     <script src="game.js?v=4"></script>
+    <script src="rpg3-ui.js?v=4"></script>
     <script>
         // Initialize all managers after all scripts load in dependency order
         document.addEventListener('DOMContentLoaded', () => {
@@ -731,6 +955,12 @@
             window.titlesManager = new TitlesManager(rpgManager);
             window.questsManager = new QuestsManager(rpgManager);
             window.itemsManager = new ItemsManager(rpgManager);
+
+            // Create Phase 3 RPG managers
+            window.campaignManager = new CampaignManager();
+            window.gearManager = new GearManager();
+            window.skillManager = new SkillManager();
+            window.clanManager = new ClanManager();
 
             window.peerManager = new PeerManager();
 

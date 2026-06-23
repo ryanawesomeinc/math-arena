@@ -2350,3 +2350,1014 @@ body.modal-open {
         width: 100%;
     }
 }
+
+/* ==================== PHASE 3 RPG FEATURES STYLES ==================== */
+
+/* Campaign Button */
+.campaign-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: 2px solid rgba(245, 158, 11, 0.5);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.campaign-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+}
+
+/* Campaign Modal */
+.campaign-modal-content {
+    max-width: 550px;
+}
+
+.campaign-modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.campaign-overview {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.2) 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 2px solid rgba(245, 158, 11, 0.3);
+}
+
+.total-stars-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.stars-icon {
+    font-size: 2rem;
+}
+
+.stars-count {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fbbf24;
+}
+
+.stars-divider {
+    font-size: 1.5rem;
+    color: #888;
+}
+
+.stars-max {
+    font-size: 1.5rem;
+    color: #888;
+}
+
+.stars-label {
+    font-size: 1rem;
+    color: #ccc;
+    margin-left: 8px;
+}
+
+/* Worlds List */
+.worlds-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.world-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.world-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.world-card.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.world-card.locked:hover {
+    transform: none;
+}
+
+.world-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.world-card-icon {
+    font-size: 2.5rem;
+}
+
+.world-card-info {
+    flex: 1;
+    margin-left: 12px;
+}
+
+.world-card-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.world-card-description {
+    font-size: 0.85rem;
+    color: #a0a0a0;
+}
+
+.world-card-stars {
+    font-size: 1.2rem;
+}
+
+.world-card-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.world-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.world-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.world-progress-text {
+    font-size: 0.8rem;
+    color: #ccc;
+    min-width: 60px;
+    text-align: right;
+}
+
+.boss-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Level Select Modal */
+.level-select-modal-content {
+    max-width: 450px;
+}
+
+.level-select-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.levels-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.level-node {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.level-node:hover:not(.locked) {
+    transform: scale(1.05);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.level-node.locked {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.level-node.boss {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.level-node.boss:not(.locked) {
+    animation: bossPulse 2s ease infinite;
+}
+
+@keyframes bossPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px 0 rgba(239, 68, 68, 0.2);
+    }
+}
+
+.level-node.completed {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: #4ade80;
+}
+
+.level-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.level-stars {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.level-star {
+    font-size: 0.8rem;
+    opacity: 0.3;
+}
+
+.level-star.earned {
+    opacity: 1;
+    color: #fbbf24;
+}
+
+/* Gear Modal */
+.gear-modal-content {
+    max-width: 500px;
+}
+
+.gear-modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.equipment-slot {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.slot-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.slot-icon {
+    font-size: 1.5rem;
+}
+
+.slot-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ccc;
+}
+
+.slot-content {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-slot {
+    color: #666;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.equipped-gear {
+    text-align: center;
+}
+
+.equipped-gear-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.equipped-gear-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    display: block;
+}
+
+.equipped-gear-rarity {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.equipped-gear-rarity.common {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+}
+
+.equipped-gear-rarity.uncommon {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+.equipped-gear-rarity.rare {
+    background: rgba(240, 147, 251, 0.2);
+    color: #f093fb;
+}
+
+.equipped-gear-rarity.epic {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.equipped-gear-rarity.legendary {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+
+.unequip-slot-btn {
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: rgba(245, 87, 108, 0.2);
+    border: 1px solid rgba(245, 87, 108, 0.3);
+    border-radius: 6px;
+    color: #f5576c;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: auto;
+    min-width: auto;
+}
+
+.unequip-slot-btn:hover {
+    background: rgba(245, 87, 108, 0.3);
+}
+
+/* Total Stats Display */
+.total-stats-display {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.total-stats-display h3 {
+    font-size: 1rem;
+    color: #667eea;
+    margin-bottom: 12px;
+}
+
+.stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stat-item-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.stat-item-display .stat-value {
+    color: #4ade80;
+    font-weight: 600;
+}
+
+/* Gear Inventory */
+.gear-inventory-section {
+    margin-bottom: 20px;
+}
+
+.gear-inventory-section h3 {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 12px;
+}
+
+.gear-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.gear-item-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.gear-item-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.gear-item-card.equipped {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.2);
+}
+
+.gear-item-icon {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+}
+
+.gear-item-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.gear-item-slot {
+    font-size: 0.65rem;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.gear-empty {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* Skills Modal */
+.skills-modal-content {
+    max-width: 550px;
+}
+
+.skills-modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.skills-header {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.skill-points-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.skill-points-icon {
+    font-size: 1.5rem;
+}
+
+.skill-points-count {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #a78bfa;
+}
+
+.skill-points-label {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* Skill Tree Tabs */
+.skill-trees-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.skill-tree-tab {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.skill-tree-tab:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.skill-tree-tab.active {
+    background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    border-color: #a78bfa;
+}
+
+/* Skill Tree Content */
+.skill-tree-content {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 300px;
+}
+
+.skill-tree-description {
+    text-align: center;
+    color: #ccc;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skill-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 14px;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.skill-item.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skill-item.available {
+    cursor: pointer;
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.skill-item.available:hover {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.skill-item.maxed {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.skill-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.skill-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.skill-tier {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+}
+
+.skill-description {
+    font-size: 0.8rem;
+    color: #a0a0a0;
+    margin-bottom: 8px;
+}
+
+.skill-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.skill-points-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.skill-points-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 100%);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.skill-points-text {
+    font-size: 0.75rem;
+    color: #a78bfa;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: right;
+}
+
+.skills-footer {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+/* Clan Modal */
+.clan-modal-content {
+    max-width: 500px;
+}
+
+.clan-modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.clan-action-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.clan-action-section h3 {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.clan-join-form,
+.clan-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.clan-join-form input,
+.clan-create-form input {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.clan-join-form input:focus,
+.clan-create-form input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.clan-divider {
+    text-align: center;
+    color: #888;
+    font-size: 0.85rem;
+    padding: 8px 0;
+}
+
+/* Current Clan Section */
+.current-clan-section {
+    background: rgba(102, 126, 234, 0.15);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.clan-info {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.clan-info h3 {
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.clan-details {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.clan-tag {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.clan-level {
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.clan-members-section,
+.clan-perks-section {
+    margin-bottom: 16px;
+}
+
+.clan-members-section h4,
+.clan-perks-section h4 {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 8px;
+}
+
+.clan-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.clan-member-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.clan-member-name {
+    color: #fff;
+}
+
+.clan-member-xp {
+    color: #4ade80;
+    font-weight: 600;
+}
+
+.clan-perks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.clan-perk-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(74, 222, 128, 0.1);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.clan-perk-icon {
+    color: #4ade80;
+}
+
+.clan-perk-name {
+    color: #fff;
+    font-weight: 500;
+}
+
+.clan-perk-description {
+    color: #ccc;
+    font-size: 0.75rem;
+}
+
+.clan-actions {
+    text-align: center;
+}
+
+/* Clan Leaderboard */
+.clan-leaderboard-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.clan-leaderboard-section h3 {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 12px;
+}
+
+.clan-leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.clan-leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.clan-rank {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffd700;
+    min-width: 24px;
+    text-align: center;
+}
+
+.clan-leaderboard-info {
+    flex: 1;
+}
+
+.clan-leaderboard-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.clan-leaderboard-tag {
+    font-size: 0.75rem;
+    color: #888;
+    margin-left: 8px;
+}
+
+.clan-leaderboard-xp {
+    font-size: 0.85rem;
+    color: #4ade80;
+    font-weight: 600;
+}
+
+/* Clan Chat Modal */
+.clan-chat-modal-content {
+    max-width: 450px;
+}
+
+.clan-chat-modal-body {
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.clan-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    min-height: 300px;
+    max-height: 400px;
+}
+
+.clan-chat-message {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.clan-chat-message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.clan-chat-sender {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #667eea;
+}
+
+.clan-chat-time {
+    font-size: 0.7rem;
+    color: #888;
+}
+
+.clan-chat-text {
+    font-size: 0.9rem;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.clan-chat-input-section {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.clan-chat-input-section input {
+    flex: 1;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.clan-chat-input-section input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.clan-chat-send-btn {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: auto;
+    min-width: auto;
+}
+
+.clan-chat-send-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments for Phase 3 features */
+@media (max-width: 480px) {
+    .equipment-slots {
+        grid-template-columns: 1fr;
+    }
+
+    .levels-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+    }
+
+    .level-node {
+        padding: 8px;
+    }
+
+    .level-number {
+        font-size: 1.2rem;
+    }
+
+    .gear-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .skill-trees-tabs {
+        font-size: 0.75rem;
+    }
+
+    .clan-chat-send-btn {
+        padding: 10px 12px;
+    }
+}
