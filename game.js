@@ -1363,7 +1363,4 @@ class MathArena {
     }
 }
 
-// Initialize game when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.game = new MathArena();
-});
+// MathArena class will be initialized in index.html

@@ -211,7 +211,4 @@ class PeerManager {
     }
 }
 
-// Initialize peer manager when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.peerManager = new PeerManager();
-});
+// PeerManager class will be initialized in index.html
