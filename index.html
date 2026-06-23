@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Math Arena — Head-to-Head Competition</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Math Arena">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <!-- Sound Toggle Button (fixed position) -->
+    <button id="sound-toggle" class="sound-toggle" aria-label="Toggle sound">
+        <span class="sound-icon">🔊</span>
+    </button>
+
+    <!-- Instructions Modal -->
+    <div id="instructions-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>How to Play</h2>
+                <button id="close-instructions" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <section class="instruction-section">
+                    <h3>🎯 Objective</h3>
+                    <p>Race against your opponent to solve math problems correctly and fast!</p>
+                </section>
+
+                <section class="instruction-section">
+                    <h3>🔗 Connecting</h3>
+                    <ul>
+                        <li><strong>Create Game:</strong> Generates a 5-letter room code</li>
+                        <li><strong>Join Game:</strong> Enter your opponent's room code</li>
+                        <li>Share the code via text, email, or any messaging app</li>
+                    </ul>
+                </section>
+
+                <section class="instruction-section">
+                    <h3>🎮 Gameplay</h3>
+                    <ul>
+                        <li><strong>Answer correctly:</strong> +1 point for you</li>
+                        <li><strong>Answer first:</strong> Lock in your point before opponent!</li>
+                        <li><strong>Wrong answer:</strong> Opponent gets a chance to score</li>
+                        <li><strong>Timeout:</strong> No points for either player</li>
+                    </ul>
+                </section>
+
+                <section class="instruction-section">
+                    <h3>📈 Difficulty</h3>
+                    <ul>
+                        <li>Correct answers increase your streak</li>
+                        <li>3+ correct in a row = difficulty increase!</li>
+                        <li>Higher difficulty = more digits in the problems</li>
+                    </ul>
+                </section>
+
+                <section class="instruction-section">
+                    <h3>⌨️ Keyboard Shortcuts</h3>
+                    <ul>
+                        <li><strong>1, 2, 3, 4:</strong> Select answer options</li>
+                        <li><strong>Enter:</strong> Start match / Play again</li>
+                        <li><strong>M:</strong> Toggle sound on/off</li>
+                        <li><strong>?</strong> Open these instructions</li>
+                    </ul>
+                </section>
+
+                <section class="instruction-section">
+                    <h3>🏆 Scoring</h3>
+                    <p>Most points after all questions wins the match!</p>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="dont-show-instructions">
+                    <span>Don't show this again</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button id="close-settings" class="close-btn" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body">
+                <section class="setting-section">
+                    <h3>Questions per Match</h3>
+                    <div class="setting-options">
+                        <button class="option-btn" data-value="10">10</button>
+                        <button class="option-btn active" data-value="20">20</button>
+                        <button class="option-btn" data-value="30">30</button>
+                    </div>
+                    <input type="hidden" id="questions-count" value="20">
+                </section>
+
+                <section class="setting-section">
+                    <h3>Starting Difficulty</h3>
+                    <div class="setting-options">
+                        <button class="option-btn" data-value="1">Easy</button>
+                        <button class="option-btn active" data-value="2">Medium</button>
+                        <button class="option-btn" data-value="3">Hard</button>
+                    </div>
+                    <input type="hidden" id="starting-difficulty" value="2">
+                </section>
+
+                <section class="setting-section">
+                    <h3>Curriculum</h3>
+                    <div class="setting-options">
+                        <button class="option-btn active" data-value="custom">Custom</button>
+                        <button class="option-btn" data-value="ontario-1-2">Ontario Gr. 1-2</button>
+                        <button class="option-btn" data-value="ontario-3-4">Ontario Gr. 3-4</button>
+                        <button class="option-btn" data-value="ontario-5-6">Ontario Gr. 5-6</button>
+                        <button class="option-btn" data-value="ontario-7-8">Ontario Gr. 7-8</button>
+                    </div>
+                    <input type="hidden" id="curriculum-mode" value="custom">
+                    <p class="setting-desc" id="curriculum-desc">Customize your own settings below</p>
+                </section>
+
+                <!-- Custom Settings Panel -->
+                <div id="custom-settings-panel" class="custom-settings-panel">
+                    <section class="setting-section">
+                        <h3>Operations</h3>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="op-add" checked>
+                                <span>Addition (+)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="op-sub" checked>
+                                <span>Subtraction (-)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="op-mul">
+                                <span>Multiplication (×)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="op-div">
+                                <span>Division (÷)</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="setting-section">
+                        <h3>Number Range</h3>
+                        <div class="range-controls">
+                            <label>Min: <span id="min-operand-value">1</span></label>
+                            <input type="range" id="min-operand" min="1" max="20" value="1">
+                            <label>Max: <span id="max-operand-value">10</span></label>
+                            <input type="range" id="max-operand" min="10" max="100" value="10">
+                        </div>
+                    </section>
+
+                    <section class="setting-section">
+                        <h3>Division Settings</h3>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="clean-division" checked>
+                            <span>Clean division only (no remainders)</span>
+                        </label>
+                    </section>
+
+                    <section class="setting-section">
+                        <h3>Difficulty Ramping</h3>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="difficulty-ramping" checked>
+                            <span>Enable difficulty ramping</span>
+                        </label>
+                        <div class="ramping-config">
+                            <label>Ramp after <input type="number" id="ramp-after-correct" min="1" max="10" value="3"> correct answers</label>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="setting-section legacy-operations">
+                    <h3>Legacy Operations Mode</h3>
+                    <div class="setting-options">
+                        <button class="option-btn" data-value="add">Addition</button>
+                        <button class="option-btn active" data-value="addsub">Add + Sub</button>
+                        <button class="option-btn" data-value="all">All Four</button>
+                    </div>
+                    <input type="hidden" id="operations-mode" value="addsub">
+                    <p class="setting-note">Note: Legacy mode - use Curriculum mode for better control</p>
+                </section>
+
+                <section class="setting-section stats-section">
+                    <h3>Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="stat-matches">0</span>
+                            <span class="stat-label">Matches Played</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="stat-correct">0</span>
+                            <span class="stat-label">Correct Answers</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="setting-section analytics-section">
+                    <h3>Analytics</h3>
+                    <p class="analytics-desc">Help improve the game with anonymous usage tracking.</p>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="analytics-optin">
+                        <span>Enable anonymous analytics</span>
+                    </label>
+                    <button id="export-analytics" class="export-btn">Export Data (JSON)</button>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings" class="primary-btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app">
+        <!-- Connection Screen -->
+        <div id="connection-screen" class="screen">
+            <div class="connection-header">
+                <button id="stats-btn" class="icon-btn" aria-label="Stats">📊</button>
+                <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙️</button>
+                <button id="instructions-btn" class="icon-btn" aria-label="How to Play">❓</button>
+            </div>
+
+            <h1 class="title">Math Arena</h1>
+            <p class="subtitle">Head-to-Head Math Battle</p>
+
+            <!-- Avatar Selection -->
+            <div class="avatar-selection">
+                <h3>Choose Your Avatar <span class="level-badge" id="level-badge">Level 1</span></h3>
+                <div class="xp-bar-container">
+                    <div class="xp-bar" id="xp-bar">
+                        <div class="xp-fill" id="xp-fill"></div>
+                    </div>
+                    <span class="xp-text" id="xp-text">0 / 100 XP</span>
+                </div>
+                <div class="avatar-grid" id="avatar-grid">
+                    <button class="avatar-btn" data-avatar="🦊" aria-label="Fox">🦊</button>
+                    <button class="avatar-btn" data-avatar="🐱" aria-label="Cat">🐱</button>
+                    <button class="avatar-btn" data-avatar="🐶" aria-label="Dog">🐶</button>
+                    <button class="avatar-btn" data-avatar="🦄" aria-label="Unicorn">🦄</button>
+                    <button class="avatar-btn" data-avatar="🐸" aria-label="Frog" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🦋" aria-label="Butterfly" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🐯" aria-label="Tiger" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🐙" aria-label="Octopus" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🦈" aria-label="Shark" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🦖" aria-label="Dino" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🐉" aria-label="Dragon" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🦁" aria-label="Lion" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🚀" aria-label="Rocket" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🌟" aria-label="Star" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="💎" aria-label="Gem" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🔮" aria-label="Crystal" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="👑" aria-label="Crown" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🏆" aria-label="Trophy" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🎯" aria-label="Target" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="⚡" aria-label="Lightning" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🎪" aria-label="Circus" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🌈" aria-label="Rainbow" data-locked="true">🔒</button>
+                    <button class="avatar-btn" data-avatar="🎨" aria-label="Palette" data-locked="true">🔒</button>
+                </div>
+                <input type="hidden" id="selected-avatar" value="🦊">
+            </div>
+
+            <div class="connection-mode">
+                <button id="create-btn" class="primary-btn">Create Game</button>
+                <button id="join-btn" class="secondary-btn">Join Game</button>
+            </div>
+
+            <div id="create-section" class="mode-section hidden">
+                <h2>Waiting for opponent...</h2>
+                <div class="peer-id-display">
+                    <label>Your Room Code:</label>
+                    <div class="peer-id-box">
+                        <span id="my-peer-id">Generating...</span>
+                        <button id="copy-id-btn" class="copy-btn">Copy</button>
+                    </div>
+                </div>
+                <div class="connection-status" id="host-status">
+                    <span class="status-dot"></span>
+                    <span>Share this 5-letter code with your opponent</span>
+                </div>
+                <button id="cancel-create-btn" class="back-btn">Cancel</button>
+            </div>
+
+            <div id="join-section" class="mode-section hidden">
+                <h2>Join a Game</h2>
+                <div class="input-group">
+                    <input type="text" id="join-peer-id" placeholder="Enter 5-letter room code" maxlength="5">
+                    <button id="connect-btn" class="primary-btn">Join</button>
+                </div>
+                <div class="connection-status" id="join-status">
+                    <span class="status-dot"></span>
+                    <span>Enter the room code from your opponent</span>
+                </div>
+                <button id="cancel-join-btn" class="back-btn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <!-- XP Bar -->
+            <div class="game-xp-bar-container">
+                <div class="game-xp-bar" id="game-xp-bar">
+                    <div class="game-xp-fill" id="game-xp-fill"></div>
+                </div>
+                <span class="game-xp-text" id="game-xp-text">+10 XP</span>
+            </div>
+
+            <div class="game-header">
+                <div class="player-score player-you">
+                    <span class="player-avatar" id="your-avatar">🦊</span>
+                    <div class="player-info">
+                        <span class="player-label">You</span>
+                        <span class="player-level" id="your-level">Lv.1</span>
+                        <span class="score" id="your-score">0</span>
+                    </div>
+                </div>
+                <div class="timer-display">
+                    <span id="timer">10</span>s
+                </div>
+                <div class="player-score player-opponent">
+                    <span class="player-avatar" id="opponent-avatar">❓</span>
+                    <div class="player-info">
+                        <span class="player-label">Opponent</span>
+                        <span class="score" id="opponent-score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="progress-indicator" class="progress-indicator hidden">Question 1 of 20</div>
+
+            <div class="connection-indicator" id="connection-indicator">
+                <span class="status-dot connected"></span>
+                <span id="connection-text">Connected</span>
+            </div>
+
+            <!-- Streak Indicator (hidden by default) -->
+            <div id="streak-indicator" class="streak-indicator hidden"></div>
+
+            <!-- Speed Indicator (hidden by default) -->
+            <div id="speed-indicator" class="speed-indicator hidden"></div>
+
+            <div class="problem-display">
+                <div id="problem-text" class="problem-text">Loading...</div>
+                <div id="round-result" class="round-result hidden"></div>
+            </div>
+
+            <div class="answers-grid" id="answers-grid">
+                <!-- Answer buttons will be generated here -->
+            </div>
+
+            <div class="difficulty-indicator">
+                Difficulty: <span id="difficulty-level">1</span>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameover-screen" class="screen hidden">
+            <h1 class="title">Game Over!</h1>
+            <div id="final-result" class="final-result"></div>
+            <div class="final-scores">
+                <div class="score-row">
+                    <span>You:</span>
+                    <span id="final-your-score">0</span>
+                </div>
+                <div class="score-row">
+                    <span>Opponent:</span>
+                    <span id="final-opponent-score">0</span>
+                </div>
+            </div>
+            <button id="play-again-btn" class="primary-btn">Play Again</button>
+            <button id="new-game-btn" class="secondary-btn">New Game</button>
+        </div>
+
+        <!-- Level Up Overlay -->
+        <div id="levelup-overlay" class="overlay hidden">
+            <div class="levelup-content">
+                <div class="levelup-title">LEVEL UP!</div>
+                <div class="levelup-level" id="levelup-level">Level 2</div>
+                <div class="levelup-badge" id="levelup-badge">🎖️</div>
+                <div class="levelup-message">Keep going!</div>
+            </div>
+        </div>
+
+        <!-- Achievement Notification -->
+        <div id="achievement-notification" class="achievement-notification hidden">
+            <div class="achievement-content">
+                <div class="achievement-icon">🏆</div>
+                <div class="achievement-info">
+                    <div class="achievement-title">Achievement Unlocked!</div>
+                    <div class="achievement-name" id="achievement-name">Lightning</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Modal -->
+        <div id="stats-modal" class="modal hidden">
+            <div class="modal-content stats-modal-content">
+                <div class="modal-header">
+                    <h2>Your Stats</h2>
+                    <button id="close-stats" class="close-btn" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body stats-modal-body">
+                    <!-- Level Progress -->
+                    <section class="stats-section">
+                        <h3>Level Progress</h3>
+                        <div class="level-display">
+                            <span class="level-number" id="stats-level">1</span>
+                            <div class="level-xp-bar">
+                                <div class="level-xp-fill" id="stats-xp-fill"></div>
+                            </div>
+                            <span class="level-xp-text" id="stats-xp-text">0 / 100 XP</span>
+                        </div>
+                    </section>
+
+                    <!-- Overall Stats -->
+                    <section class="stats-section">
+                        <h3>Overall Stats</h3>
+                        <div class="stats-grid-expanded">
+                            <div class="stat-item-expanded">
+                                <span class="stat-icon">🎮</span>
+                                <span class="stat-value" id="stat-matches-expanded">0</span>
+                                <span class="stat-label">Matches</span>
+                            </div>
+                            <div class="stat-item-expanded">
+                                <span class="stat-icon">🏆</span>
+                                <span class="stat-value" id="stat-wins">0</span>
+                                <span class="stat-label">Wins</span>
+                            </div>
+                            <div class="stat-item-expanded">
+                                <span class="stat-icon">📈</span>
+                                <span class="stat-value" id="stat-winrate">0%</span>
+                                <span class="stat-label">Win Rate</span>
+                            </div>
+                            <div class="stat-item-expanded">
+                                <span class="stat-icon">✅</span>
+                                <span class="stat-value" id="stat-correct-expanded">0</span>
+                                <span class="stat-label">Correct</span>
+                            </div>
+                            <div class="stat-item-expanded">
+                                <span class="stat-icon">🔥</span>
+                                <span class="stat-value" id="stat-best-streak">0</span>
+                                <span class="stat-label">Best Streak</span>
+                            </div>
+                            <div class="stat-item-expanded">
+                                <span class="stat-icon">🎯</span>
+                                <span class="stat-value" id="stat-accuracy">0%</span>
+                                <span class="stat-label">Accuracy</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Operation Levels -->
+                    <section class="stats-section">
+                        <h3>Operation Levels</h3>
+                        <div class="operation-levels">
+                            <div class="operation-level-item">
+                                <span class="operation-name">Addition</span>
+                                <div class="operation-level-bar">
+                                    <div class="operation-level-fill" id="op-level-add" style="width: 0%"></div>
+                                </div>
+                                <span class="operation-level-text" id="op-level-text-add">Lv.1</span>
+                            </div>
+                            <div class="operation-level-item">
+                                <span class="operation-name">Subtraction</span>
+                                <div class="operation-level-bar">
+                                    <div class="operation-level-fill" id="op-level-sub" style="width: 0%"></div>
+                                </div>
+                                <span class="operation-level-text" id="op-level-text-sub">Lv.1</span>
+                            </div>
+                            <div class="operation-level-item">
+                                <span class="operation-name">Multiplication</span>
+                                <div class="operation-level-bar">
+                                    <div class="operation-level-fill" id="op-level-mult" style="width: 0%"></div>
+                                </div>
+                                <span class="operation-level-text" id="op-level-text-mult">Lv.1</span>
+                            </div>
+                            <div class="operation-level-item">
+                                <span class="operation-name">Division</span>
+                                <div class="operation-level-bar">
+                                    <div class="operation-level-fill" id="op-level-div" style="width: 0%"></div>
+                                </div>
+                                <span class="operation-level-text" id="op-level-text-div">Lv.1</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Achievement Progress -->
+                    <section class="stats-section">
+                        <h3>Achievements</h3>
+                        <div class="achievement-progress">
+                            <span class="achievement-count" id="achievement-count">0 / 18</span>
+                            <div class="achievement-bar">
+                                <div class="achievement-bar-fill" id="achievement-bar-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="achievement-categories">
+                            <div class="achievement-category">
+                                <span class="category-name">Speed</span>
+                                <span class="category-progress" id="category-speed">0/3</span>
+                            </div>
+                            <div class="achievement-category">
+                                <span class="category-name">Accuracy</span>
+                                <span class="category-progress" id="category-accuracy">0/3</span>
+                            </div>
+                            <div class="achievement-category">
+                                <span class="category-name">Streak</span>
+                                <span class="category-progress" id="category-streak">0/4</span>
+                            </div>
+                            <div class="achievement-category">
+                                <span class="category-name">Curriculum</span>
+                                <span class="category-progress" id="category-curriculum">0/3</span>
+                            </div>
+                            <div class="achievement-category">
+                                <span class="category-name">Win</span>
+                                <span class="category-progress" id="category-win">0/4</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Avatar Progress -->
+                    <section class="stats-section">
+                        <h3>Avatars</h3>
+                        <div class="avatar-progress">
+                            <span class="avatar-count" id="avatar-count">4 / 32</span>
+                            <div class="avatar-bar">
+                                <div class="avatar-bar-fill" id="avatar-bar-fill" style="width: 12.5%"></div>
+                            </div>
+                        </div>
+                        <div class="avatar-unlocks-hint">
+                            <span>Unlock more at Levels 3, 5, 7, 10 and via achievements!</span>
+                        </div>
+                    </section>
+
+                    <!-- Recent Matches -->
+                    <section class="stats-section">
+                        <h3>Recent Matches</h3>
+                        <div class="recent-matches" id="recent-matches">
+                            <div class="no-matches">No matches yet</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Opt-In Modal -->
+    <div id="analytics-optin-modal" class="modal hidden">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Help Improve Math Arena</h2>
+            </div>
+            <div class="modal-body">
+                <p>Would you like to help us improve the game? We collect anonymous usage data like:</p>
+                <ul>
+                    <li>Match results</li>
+                    <li>Questions answered</li>
+                    <li>Performance metrics</li>
+                </ul>
+                <p>All data stays on your device. You can export or delete it anytime in Settings.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="analytics-accept" class="primary-btn">Sure, I'd love to help!</button>
+                <button id="analytics-decline" class="secondary-btn">No thanks</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="settings.js"></script>
+    <script src="analytics.js"></script>
+    <script src="rpg.js"></script>
+    <script src="game.js"></script>
+    <script src="peer.js"></script>
+</body>
+</html>
