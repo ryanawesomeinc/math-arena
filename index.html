@@ -580,12 +580,17 @@
     <script src="peer.js"></script>
     <script src="game.js"></script>
     <script>
-        // Initialize all managers after all scripts load
+        // Initialize all managers after all scripts load in dependency order
         document.addEventListener('DOMContentLoaded', () => {
-            window.settingsManager = new SettingsManager();
+            // analyticsManager has no dependencies
             window.analyticsManager = new AnalyticsManager();
+            // rpgManager has no dependencies
             window.rpgManager = new RPGManager();
+            // settingsManager depends on rpgManager and analyticsManager
+            window.settingsManager = new SettingsManager();
+            // peerManager has no dependencies
             window.peerManager = new PeerManager();
+            // game depends on all above
             window.game = new MathArena();
             console.log('All managers initialized');
         });
