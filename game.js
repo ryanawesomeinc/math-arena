@@ -1363,8 +1363,7 @@ class MathArena {
     }
 }
 
-// Initialize game
-const game = new MathArena();
-
-// Send avatar to peer when connected
-peerManager.send({ type: 'avatar', avatar: game.myAvatar });
+// Initialize game when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.game = new MathArena();
+});
