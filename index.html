@@ -1000,18 +1000,10 @@
     <script>
         // Initialize all managers after all scripts load in dependency order
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize audio system first
-            if (typeof audioManager !== 'undefined') {
-                window.audioManager = audioManager;
-
-                // Initialize audio on first user interaction
-                const initAudioOnInteraction = () => {
-                    audioManager.init();
-                    document.removeEventListener('click', initAudioOnInteraction);
-                    document.removeEventListener('keydown', initAudioOnInteraction);
-                };
-                document.addEventListener('click', initAudioOnInteraction, { once: true });
-                document.addEventListener('keydown', initAudioOnInteraction, { once: true });
+            // Ensure audioManager is available globally
+            if (window.audioManager) {
+                // Make it available as just 'audioManager' for legacy code
+                window.audioManagerLegacy = window.audioManager;
             }
 
             // Create managers with no constructor dependencies first
@@ -1039,6 +1031,11 @@
 
             // Finally create game (depends on all above)
             window.game = new MathArena();
+
+            // Setup audio manager after settings
+            if (window.audioManager && window.settingsManager) {
+                window.audioManager.setEnabled(window.settingsManager.get('soundEnabled'));
+            }
 
             // Setup enhanced UI features after game is initialized
             if (window.game) {

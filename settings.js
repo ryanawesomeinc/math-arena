@@ -93,7 +93,7 @@ class SettingsManager {
 
             // Initialize audioManager sound state from settings
             if (typeof audioManager !== 'undefined') {
-                audioManager.soundEnabled = this.settings.soundEnabled;
+                window.audioManager.soundEnabled = this.settings.soundEnabled;
             }
         }
 
@@ -127,7 +127,7 @@ class SettingsManager {
 
         // Update audioManager state
         if (typeof audioManager !== 'undefined') {
-            audioManager.soundEnabled = this.settings.soundEnabled;
+            window.audioManager.soundEnabled = this.settings.soundEnabled;
         }
 
         // Dispatch custom event for game to listen
@@ -137,7 +137,7 @@ class SettingsManager {
 
         // Play confirmation sound if enabling
         if (this.settings.soundEnabled && typeof audioManager !== 'undefined') {
-            audioManager.playSound('buttonClick');
+            window.audioManager.playSound('buttonClick');
         }
     }
 
