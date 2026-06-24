@@ -755,7 +755,14 @@ class ClanUI {
 // ==================== CAMPAIGN GAME INTEGRATION ====================
 
 // Extend MathArena class with campaign functionality
-(function() {
+// Wait for MathArena to be defined before extending
+function extendMathArenaForCampaign() {
+    if (typeof MathArena === 'undefined') {
+        // MathArena not defined yet, retry in 50ms
+        setTimeout(extendMathArenaForCampaign, 50);
+        return;
+    }
+
     const originalStartMatch = MathArena.prototype.startMatch;
 
     MathArena.prototype.startCampaignMatch = function(worldId, level) {
@@ -867,7 +874,10 @@ class ClanUI {
 
         return result;
     };
-})();
+}
+
+// Start the extension process
+extendMathArenaForCampaign();
 
 // ==================== INITIALIZATION ====================
 

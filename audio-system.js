@@ -428,5 +428,9 @@ class AudioManager {
     }
 }
 
-// Export singleton instance
-const audioManager = new AudioManager();
+// Export singleton instance (assign to existing variable if declared, or create new)
+if (typeof audioManager !== 'undefined') {
+    audioManager = new AudioManager();
+} else {
+    window.audioManager = new AudioManager();
+}
