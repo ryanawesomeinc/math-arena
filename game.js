@@ -3,7 +3,8 @@
 const ROUND_TIME = 10;
 const NEXT_QUESTION_DELAY = 1000;
 
-// Use new audio system
+// Audio manager will be created by audio-system.js
+// Audio functions are legacy compatibility - will be overridden
 let audioManager = null;
 let soundEnabled = true;
 

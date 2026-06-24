@@ -428,9 +428,11 @@ class AudioManager {
     }
 }
 
-// Export singleton instance (assign to existing variable if declared, or create new)
+// Export singleton instance
+// Create AudioManager and make it available globally
+window.audioManager = new AudioManager();
+
+// Also update the global audioManager variable if it exists (for compatibility)
 if (typeof audioManager !== 'undefined') {
-    audioManager = new AudioManager();
-} else {
-    window.audioManager = new AudioManager();
+    audioManager = window.audioManager;
 }
