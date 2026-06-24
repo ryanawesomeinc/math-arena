@@ -1034,7 +1034,7 @@
 
             // Setup audio manager after settings
             if (window.audioManager && window.settingsManager) {
-                window.audioManager.setEnabled(window.settingsManager.get('soundEnabled'));
+                window.audioManager.soundEnabled = window.settingsManager.get('soundEnabled');
             }
 
             // Setup enhanced UI features after game is initialized
