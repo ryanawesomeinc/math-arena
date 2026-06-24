@@ -10,8 +10,8 @@ let soundEnabled = true;
 
 // Legacy function for compatibility - delegates to audioManager
 function playSound(type) {
-    if (audioManager) {
-        audioManager.playSound(type);
+    if (window.audioManager) {
+        window.audioManager.playSound(type);
     }
 }
 
@@ -1842,8 +1842,8 @@ class MathArena {
         allButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 // Play subtle click sound
-                if (audioManager) {
-                    audioManager.playSound('buttonClick');
+                if (window.audioManager) {
+                    window.audioManager.playSound('buttonClick');
                 }
 
                 // Visual feedback already handled by CSS :active state
@@ -1883,10 +1883,10 @@ class MathArena {
 
                         if (!isHidden && audioManager) {
                             // Modal opened
-                            audioManager.playSound('modalOpen');
+                            window.audioManager.playSound('modalOpen');
                         } else if (isHidden && audioManager) {
                             // Modal closed
-                            audioManager.playSound('modalClose');
+                            window.audioManager.playSound('modalClose');
                         }
                     }
                 });
