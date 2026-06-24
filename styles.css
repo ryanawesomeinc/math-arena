@@ -456,6 +456,18 @@ button {
     animation: streakCelebration 0.6s ease;
 }
 
+.round-result.opponent-wrong {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+    animation: correctFlash 0.4s ease;
+}
+
+.round-result.opponent-timeout {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+    animation: correctFlash 0.4s ease;
+}
+
 @keyframes slideIn {
     from {
         opacity: 0;

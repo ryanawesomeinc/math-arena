@@ -1523,14 +1523,16 @@ class MathArena {
 
     showRoundResult(result) {
         const resultEl = this.elements.game.roundResult;
-        resultEl.classList.remove('hidden', 'correct', 'wrong', 'timeout', 'too-slow', 'streak');
+        resultEl.classList.remove('hidden', 'correct', 'wrong', 'timeout', 'too-slow', 'streak', 'opponent-wrong', 'opponent-timeout');
 
         const messages = {
             correct: '+1 Point!',
             wrong: 'Wrong!',
             timeout: "Time's Up!",
             'too-slow': 'Too Slow!',
-            streak: '🔥 STREAK! 🔥'
+            streak: '🔥 STREAK! 🔥',
+            'opponent-wrong': 'Opponent Wrong!',
+            'opponent-timeout': 'Opponent Timeout!'
         };
 
         resultEl.textContent = messages[result];
@@ -1549,6 +1551,13 @@ class MathArena {
         if (this.isHost) {
             this.startRound();
         }
+    }
+
+    waitForNextQuestion() {
+        // Clear the timeout that triggered this
+        this.clearPendingAdvance();
+        // Non-host just waits - the host will send newProblem message
+        // This is called after showing result to allow time for the visual feedback
     }
 
     loadProblem(problemData, questionNumber) {
@@ -1753,8 +1762,32 @@ class MathArena {
                 this.handleOpponentAnswer(data);
                 break;
             case 'wrongAnswer':
+                // Opponent answered wrong - show result and auto-advance
+                if (this.roundActive) {
+                    this.roundActive = false;
+                    this.clearTimer();
+                    this.disableAnswers();
+                    this.showRoundResult('opponent-wrong');
+                    playSound('correct'); // You got it right by default
+
+                    // Auto-advance after 1 second (wait for host's next problem)
+                    this.clearPendingAdvance();
+                    this.pendingAdvanceTimeout = setTimeout(() => this.waitForNextQuestion(), NEXT_QUESTION_DELAY);
+                }
                 break;
             case 'timeout':
+                // Opponent timed out - show result and auto-advance
+                if (this.roundActive) {
+                    this.roundActive = false;
+                    this.clearTimer();
+                    this.disableAnswers();
+                    this.showRoundResult('opponent-timeout');
+                    playSound('correct'); // You got it right by default
+
+                    // Auto-advance after 1 second (wait for host's next problem)
+                    this.clearPendingAdvance();
+                    this.pendingAdvanceTimeout = setTimeout(() => this.waitForNextQuestion(), NEXT_QUESTION_DELAY);
+                }
                 break;
             case 'playAgain':
                 this.resetGame();
